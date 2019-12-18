@@ -5,21 +5,21 @@ import javax.jms.ConnectionFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.integration.annotation.IntegrationComponentScan;
 import org.springframework.integration.channel.DirectChannel;
-import org.springframework.integration.config.EnableIntegration;
 import org.springframework.integration.jms.ChannelPublishingJmsMessageListener;
 import org.springframework.integration.jms.JmsMessageDrivenEndpoint;
 import org.springframework.jms.listener.SimpleMessageListenerContainer;
+import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
+import org.springframework.jms.support.converter.MessageType;
 
 @Configuration
 public class JmsAdapterConfig {
 
 	@Value("test-queue")
 	private String integrationDestination;
-
+	
 	@Bean
-	public DirectChannel consumingChannel() {
+	public DirectChannel jmsConsumingChannel() {
 		return new DirectChannel();
 	}
 
@@ -27,7 +27,7 @@ public class JmsAdapterConfig {
 	public JmsMessageDrivenEndpoint jmsMessageDrivenEndpoint(ConnectionFactory connectionFactory) {
 		JmsMessageDrivenEndpoint endpoint = new JmsMessageDrivenEndpoint(
 				simpleMessageListenerContainer(connectionFactory), channelPublishingJmsMessageListener());
-		endpoint.setOutputChannel(consumingChannel());
+		endpoint.setOutputChannel(jmsConsumingChannel());
 
 		return endpoint;
 	}
@@ -42,6 +42,7 @@ public class JmsAdapterConfig {
 
 	@Bean
 	public ChannelPublishingJmsMessageListener channelPublishingJmsMessageListener() {
-		return new ChannelPublishingJmsMessageListener();
+		ChannelPublishingJmsMessageListener listener = new ChannelPublishingJmsMessageListener();
+		return listener;
 	}
 }
